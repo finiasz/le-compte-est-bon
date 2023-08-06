@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name" translatable="false">Le compte est bon</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="reload_confirmation">Generate a new set of numbers?</string>
+    <string name="solve_confirmation">Automatically solve this puzzle?</string>
+</resources>

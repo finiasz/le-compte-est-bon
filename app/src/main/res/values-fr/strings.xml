@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel">Annuler</string>
+    <string name="ok">Ok</string>
+    <string name="reload_confirmation">Générer un nouveau tirage ?</string>
+    <string name="solve_confirmation">Résoudre automatiquement ?</string>
+</resources>
