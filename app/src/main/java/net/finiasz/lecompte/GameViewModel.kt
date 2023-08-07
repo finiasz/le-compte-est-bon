@@ -215,53 +215,68 @@ class GameViewModel : ViewModel() {
                 nums.shuffle()
                 val a = nums.removeAt(nums.size - 1)
                 val b = nums.removeAt(nums.size - 1)
-                if (b != 0 && (a % b) == 0) {
-                    val c = when (Random.nextFloat()) {
-                        in 0f..0.3f -> {
-                            solution.add(Step(a = a, b = b, op = "+"))
-                            a + b
-                        }
-                        in 0.3f..0.6f -> {
-                            if (a < b) {
-                                solution.add(Step(a = b, b = a, op = "-"))
-                                b - a
-                            } else {
-                                solution.add(Step(a = a, b = b, op = "-"))
-                                a - b
-                            }
-                        }
-                        in 0.6f..0.9f -> {
-                            solution.add(Step(a = a, b = b, op = "*"))
-                            a * b
-                        }
-                        else -> {
-                            solution.add(Step(a = a, b = b, op = "/"))
-                            a / b
-                        }
-                    }
-                    nums.add(c)
-                } else {
-                    val c = when (Random.nextFloat()) {
-                        in 0f..0.35f -> {
-                            solution.add(Step(a = a, b = b, op = "+"))
-                            a + b
-                        }
-                        in 0.35f..0.7f -> {
-                            if (a < b) {
-                                solution.add(Step(a = b, b = a, op = "-"))
-                                b - a
-                            } else {
-                                solution.add(Step(a = a, b = b, op = "-"))
-                                a - b
-                            }
-                        }
-                        else -> {
-                            solution.add(Step(a = a, b = b, op = "*"))
-                            a * b
-                        }
-                    }
-                    nums.add(c)
+                val possibleOps = mutableListOf(Pair("+", 3))
+
+                if (a != 1 && b != 1) { // avoid useless multiplications
+                    possibleOps.add(Pair("*", 4))
                 }
+
+                if (a != b) { // make sure we never get a 0
+                    possibleOps.add(Pair("-", 2))
+                }
+
+                if (a != 1 && b != 1 && (a % b == 0 || b % a == 0)) { // make sure divisions always return an integer value
+                    possibleOps.add(Pair("/", 1))
+                }
+
+                val totalWeight = possibleOps.map {
+                    it.second
+                }.reduce { first, second ->
+                    first + second
+                }
+
+                var x = Random.nextInt(totalWeight)
+                var op: String? = null
+
+                val iterator = possibleOps.iterator()
+                while (iterator.hasNext()) {
+                    val pair = iterator.next()
+                    x -= pair.second
+                    if (x < 0) {
+                        op = pair.first
+                        break
+                    }
+                }
+
+                val c = when (op) {
+                    "-" -> if (a < b) {
+                        solution.add(Step(a = b, b = a, op = "-"))
+                        b - a
+                    } else {
+                        solution.add(Step(a = a, b = b, op = "-"))
+                        a - b
+                    }
+
+                    "/" -> if (a < b) {
+                        solution.add(Step(a = b, b = a, op = "/"))
+                        b / a
+                    } else {
+                        solution.add(Step(a = a, b = b, op = "/"))
+                        a / b
+                    }
+
+                    "*" -> {
+                        solution.add(Step(a = a, b = b, op = "*"))
+                        a * b
+                    }
+
+                    else -> {
+                        solution.add(Step(a = a, b = b, op = "+"))
+                        a + b
+                    }
+                }
+
+                nums.add(c)
             }
         } while(!(nums[0] in 101..999))
         return Pair(nums[0], solution)
