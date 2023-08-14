@@ -27,6 +27,7 @@ private val LightColorScheme = lightColorScheme(
     onError = Color.Black,
     surfaceVariant = Color(0xffffffff),
     outlineVariant = LightSolve,
+    primaryContainer = Color(0xffdddddd),
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -44,6 +45,7 @@ private val DarkColorScheme = darkColorScheme(
     onError = Color.White,
     surfaceVariant = Color(0xff333333),
     outlineVariant = DarkSolve,
+    primaryContainer = Color(0xff333333),
 )
 
 @Composable

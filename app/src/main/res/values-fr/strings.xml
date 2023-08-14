@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="cancel">Annuler</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="reload_confirmation">Générer un nouveau tirage ?</string>
     <string name="solve_confirmation">Résoudre automatiquement ?</string>
+    <string name="settings_always_solution">Générer des tirages qui ont toujours une solution</string>
+    <string name="solve">Résoudre</string>
+    <string name="hint">Indice</string>
+    <string name="exact_match_possible">Résultat exact possible</string>
+    <string name="closest_match">Meilleur résultat : %1$d</string>
 </resources>

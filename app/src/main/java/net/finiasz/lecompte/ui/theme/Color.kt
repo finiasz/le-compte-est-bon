@@ -9,6 +9,6 @@ val LightReset = Color(0xffff5a5f)
 val DarkGreen = Color(0xFF119944)
 val DarkReset = Color(0xFFbb0006)
 val LightSolve = Color(0xffffcc66)
-val DarkSolve = Color(0xffaa5500)
+val DarkSolve = Color(0xFFDAA53B)
 
 

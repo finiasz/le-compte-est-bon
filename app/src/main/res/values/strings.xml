@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name" translatable="false">Le compte est bon</string>
     <string name="cancel">Cancel</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="reload_confirmation">Generate a new set of numbers?</string>
     <string name="solve_confirmation">Automatically solve this puzzle?</string>
+    <string name="settings_always_solution">Generate draws that always have a solution</string>
+    <string name="solve">Solve</string>
+    <string name="hint">Hint</string>
+    <string name="exact_match_possible">Exact match possible</string>
+    <string name="closest_match">Closest match: %1$d</string>
 </resources>

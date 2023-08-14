@@ -6,8 +6,11 @@ data class GameState(
     val selected : MutableList<Int?> = MutableList(10) { null },
     val selectedOps : MutableList<String?> = MutableList(5) { null },
     val solution : MutableList<Step?> =  MutableList(5) { null },
+    var solutionBest : Int? = null,
     var target : Int = 0,
-    var won : Int? = null
+    var won : Won = Won.NOT_WON,
+    var wonPos : Int? = null,
+    val alwaysSolution : Boolean,
 ) {
     val opEnabled: Boolean
         get() {
@@ -33,6 +36,9 @@ data class GameState(
 
     val undoEnabled: Boolean
         get() = selected[0] != null
+
+    val hasSolution: Boolean
+        get() = !solution.isEmpty() && solution[0] != null
 }
 
 data class Step(
@@ -40,3 +46,9 @@ data class Step(
     val b: Int,
     val op: String
 )
+
+enum class Won {
+    NOT_WON,
+    WON_EXACT,
+    WON_BEST
+}
