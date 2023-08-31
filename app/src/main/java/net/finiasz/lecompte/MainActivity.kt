@@ -56,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.ExperimentalUnitApi
@@ -102,18 +103,28 @@ fun Plateau(gameViewModel : GameViewModel = viewModel()) {
     }
 
     val sizes : Sizes = with(LocalConfiguration.current) {
-        Sizes(
-            buttonWidthDp = this.screenWidthDp * .28f,
-            buttonHeightDp = if (this.screenWidthDp > this.screenHeightDp) this.screenHeightDp * .072f else this.screenHeightDp * .072f,
-            textSizeSp = this.screenHeightDp * .04f / this.fontScale
-        )
+        if (this.screenWidthDp > this.screenHeightDp) {
+            Sizes(
+                true,
+                buttonWidthDp = this.screenWidthDp * .175f,
+                buttonHeightDp = this.screenHeightDp * .115f,
+                textSizeSp = this.screenHeightDp * .07f / this.fontScale
+            )
+        } else {
+            Sizes(
+                false,
+                buttonWidthDp = this.screenWidthDp * .28f,
+                buttonHeightDp = this.screenHeightDp * .072f,
+                textSizeSp = this.screenHeightDp * .04f / this.fontScale
+            )
+        }
     }
 
     Column(
         Modifier
             .padding(
                 vertical = (sizes.buttonHeightDp / 4).dp,
-                horizontal = (sizes.buttonWidthDp / 7).dp
+                horizontal = if (sizes.landscape) (sizes.buttonWidthDp / 9).dp else (sizes.buttonWidthDp / 7).dp
             )
             .fillMaxWidth()
             .fillMaxHeight(),
@@ -121,217 +132,205 @@ fun Plateau(gameViewModel : GameViewModel = viewModel()) {
     ) {
 
         // target
-        Row( horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Box(
+        if (!sizes.landscape) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .width((2 * sizes.buttonWidthDp).dp)
-                    .height((1.8f * sizes.buttonHeightDp).dp)
-                    .border(
-                        if (state.won != Won.NOT_WON) 4.dp else 2.dp,
-                        when (state.won) {
-                            Won.WON_EXACT, Won.WON_BEST -> MaterialTheme.colorScheme.tertiaryContainer; else -> MaterialTheme.colorScheme.onSurface
-                        },
-                        RoundedCornerShape(16.dp)
-                    )
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        color = when (state.won) {
-                            Won.WON_EXACT -> MaterialTheme.colorScheme.tertiary; Won.WON_BEST -> MaterialTheme.colorScheme.outline; else -> Color.Transparent
-                        }
-                    )
+                    .fillMaxWidth()
             ) {
-                Text(
-                    text = state.target.toString(),
-                    modifier = Modifier
-                        .align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.onTertiary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = TextUnit(2 * sizes.textSizeSp, TextUnitType.Sp),
-                )
+                Target(sizes = sizes, won = state.won, target = state.target)
             }
         }
 
-
         // equations
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                .fillMaxWidth()
-                .height((sizes.buttonHeightDp * 7).dp)
-        ) {
-            Column(
-                verticalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .width((sizes.buttonWidthDp * (.6f / .28f)).dp)
-                    .fillMaxHeight()
+        if (sizes.landscape) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
+                    .height((sizes.buttonHeightDp * 4.36).dp)
             ) {
-                for (i in 4 downTo 0) {
-                    Equation(
-                        pos = i,
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .width((sizes.buttonWidthDp * (.45f / .17f)).dp)
+                        .fillMaxHeight()
+                ) {
+                    Spacer(modifier = Modifier.height((sizes.buttonHeightDp * .52).dp))
+
+                    for (i in 4 downTo 2) {
+                        Equation(
+                            pos = i,
+                            chiffres = state.chiffres,
+                            usedChiffres = state.usedChiffres,
+                            selected = state.selected,
+                            selectedOps = state.selectedOps,
+                            chiffreEnabled = state.chiffreEnabled,
+                            won = state.won,
+                            wonPos = state.wonPos,
+                            click = { gameViewModel.chiffreClick(6 + i) },
+                            sizes = sizes,
+                        )
+                    }
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .width((sizes.buttonWidthDp * (.45f / .17f)).dp)
+                        .fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Target(sizes = sizes, won = state.won, target = state.target)
+
+                    for (i in 1 downTo 0) {
+                        Equation(
+                            pos = i,
+                            chiffres = state.chiffres,
+                            usedChiffres = state.usedChiffres,
+                            selected = state.selected,
+                            selectedOps = state.selectedOps,
+                            chiffreEnabled = state.chiffreEnabled,
+                            won = state.won,
+                            wonPos = state.wonPos,
+                            click = { gameViewModel.chiffreClick(6 + i) },
+                            sizes = sizes,
+                        )
+                    }
+                }
+            }
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
+                    .height((sizes.buttonHeightDp * 7).dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .width((sizes.buttonWidthDp * (.6f / .28f)).dp)
+                        .fillMaxHeight()
+                ) {
+                    for (i in 4 downTo 0) {
+                        Equation(
+                            pos = i,
+                            chiffres = state.chiffres,
+                            usedChiffres = state.usedChiffres,
+                            selected = state.selected,
+                            selectedOps = state.selectedOps,
+                            chiffreEnabled = state.chiffreEnabled,
+                            won = state.won,
+                            wonPos = state.wonPos,
+                            click = { gameViewModel.chiffreClick(6 + i) },
+                            sizes = sizes,
+                        )
+                    }
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    SettingsButton(sizes = sizes) { showSettings.value = true }
+
+                    Op(op = "/", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                    Op(op = "*", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                    Op(op = "-", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                    Op(op = "+", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                }
+            }
+        }
+
+        // chiffres
+        if (sizes.landscape) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                for (i in 0..2) {
+                    Chiffre(
                         chiffres = state.chiffres,
                         usedChiffres = state.usedChiffres,
-                        selected = state.selected,
-                        selectedOps = state.selectedOps,
-                        chiffreEnabled = state.chiffreEnabled,
-                        won = state.won,
-                        wonPos = state.wonPos,
-                        click = { gameViewModel.chiffreClick(6 + i) },
+                        pos = i,
+                        enabled = state.chiffreEnabled,
+                        click = { gameViewModel.chiffreClick(i) },
+                        sizes = sizes,
+                    )
+                }
+                Op(op = "/", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                Op(op = "*", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                for (i in 3..5) {
+                    Chiffre(
+                        chiffres = state.chiffres,
+                        usedChiffres = state.usedChiffres,
+                        pos = i,
+                        enabled = state.chiffreEnabled,
+                        click = { gameViewModel.chiffreClick(i) },
+                        sizes = sizes,
+                    )
+                }
+                Op(op = "-", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                Op(op = "+", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+            }
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                for (i in 0..2) {
+                    Chiffre(
+                        chiffres = state.chiffres,
+                        usedChiffres = state.usedChiffres,
+                        pos = i,
+                        enabled = state.chiffreEnabled,
+                        click = { gameViewModel.chiffreClick(i) },
                         sizes = sizes,
                     )
                 }
             }
-
-            Column(
-                verticalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxHeight()
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
             ) {
-
-                Image(painter = painterResource(id = R.drawable.settings),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(sizes.buttonWidthDp.dp)
-                        .height(sizes.buttonHeightDp.dp)
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.primaryContainer,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable() {
-                            showSettings.value = true
-                        }
-                        .padding(vertical = (sizes.buttonHeightDp / 8).dp),
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primaryContainer),
-                    contentScale = ContentScale.Fit
-                )
-
-
-                Op(op = "/", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
-                Op(op = "*", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
-                Op(op = "-", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
-                Op(op = "+", enabled = state.opEnabled, click = { gameViewModel.opClick(it) }, sizes = sizes)
+                for (i in 3..5) {
+                    Chiffre(
+                        chiffres = state.chiffres,
+                        usedChiffres = state.usedChiffres,
+                        pos = i,
+                        enabled = state.chiffreEnabled,
+                        click = { gameViewModel.chiffreClick(i) },
+                        sizes = sizes,
+                    )
+                }
             }
         }
-
-
-
-
-        // chiffres
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            for (i in 0..2) {
-                Chiffre(
-                    chiffres = state.chiffres,
-                    usedChiffres = state.usedChiffres,
-                    pos = i,
-                    enabled = state.chiffreEnabled,
-                    click = { gameViewModel.chiffreClick(i) },
-                    sizes = sizes,
-                )
-            }
-        }
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            for (i in 3..5) {
-                Chiffre(
-                    chiffres = state.chiffres,
-                    usedChiffres = state.usedChiffres,
-                    pos = i,
-                    enabled = state.chiffreEnabled,
-                    click = { gameViewModel.chiffreClick(i) },
-                    sizes = sizes,
-                )
-            }
-        }
-
-
-
 
         // controls
         Row( horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Image(painter = painterResource(id = R.drawable.reset),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(sizes.buttonWidthDp.dp)
-                    .height(sizes.buttonHeightDp.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(color = MaterialTheme.colorScheme.error)
-                    .clickable() {
-                        if (state.won == Won.NOT_WON) {
-                            reloadConfirmation.value = true
-                        } else {
-                            reset()
-                        }
-                    }
-                    .padding(vertical = (sizes.buttonHeightDp / 8).dp),
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onError),
-                contentScale = ContentScale.Fit
-            )
-
-            Box(
-                modifier = Modifier
-                    .alpha(if (state.hasSolution) 1f else .25f)
-                    .width(sizes.buttonWidthDp.dp)
-                    .height(sizes.buttonHeightDp.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(color = MaterialTheme.colorScheme.outlineVariant)
-                    .clickable(enabled = state.hasSolution) {
-                        solveConfirmation.value = true
-                    }
-            ) {
-                if (state.hasSolution) {
-                    Image(
-                        painter = painterResource(id = R.drawable.solve),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-                            .padding(vertical = (sizes.buttonHeightDp / 8).dp),
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onError),
-                        contentScale = ContentScale.Fit
-                    )
+            if (sizes.landscape) {
+                SettingsButton(sizes = sizes) { showSettings.value = true }
+                Spacer(modifier = Modifier.width(sizes.buttonWidthDp.dp))
+            }
+            ResetButton(sizes = sizes) {
+                if (state.won == Won.NOT_WON) {
+                    reloadConfirmation.value = true
                 } else {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(
-                                (Math.min(
-                                    sizes.buttonHeightDp,
-                                    sizes.buttonWidthDp
-                                ) - sizes.buttonHeightDp / 4).dp
-                            )
-                            .align(Alignment.Center),
-                        color = MaterialTheme.colorScheme.onError,
-                        strokeWidth = 5.dp,
-                        strokeCap = StrokeCap.Round,
-                    )
+                    reset()
                 }
             }
 
-            Image(painter = painterResource(id = R.drawable.undo),
-                contentDescription = null,
-                modifier = Modifier
-                    .alpha(if (state.undoEnabled) 1f else .25f)
-                    .width(sizes.buttonWidthDp.dp)
-                    .height(sizes.buttonHeightDp.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(color = MaterialTheme.colorScheme.tertiary)
-                    .clickable(enabled = state.undoEnabled) { gameViewModel.undo() }
-                    .padding(vertical = (sizes.buttonHeightDp / 8).dp),
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onTertiary),
-                contentScale = ContentScale.Fit
-            )
+            SolveButton(sizes = sizes, hasSolution = state.hasSolution) {solveConfirmation.value = true}
+
+            UndoButton(sizes = sizes, undoEnabled = state.undoEnabled) {
+                gameViewModel.undo()
+            }
         }
     }
 
@@ -674,11 +673,146 @@ fun Equation(pos: Int, chiffres: List<Int?>, usedChiffres: List<Boolean>, select
     }
 }
 
+@Composable
+fun SettingsButton(sizes: Sizes, click: () -> Unit) {
+    Image(painter = painterResource(id = R.drawable.settings),
+        contentDescription = null,
+        modifier = Modifier
+            .width(sizes.buttonWidthDp.dp)
+            .height(sizes.buttonHeightDp.dp)
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.primaryContainer,
+                RoundedCornerShape(8.dp)
+            )
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                click()
+            }
+            .padding(vertical = (sizes.buttonHeightDp / 8).dp),
+        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primaryContainer),
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+fun ResetButton(sizes: Sizes, click: () -> Unit) {
+    Image(painter = painterResource(id = R.drawable.reset),
+        contentDescription = null,
+        modifier = Modifier
+            .width(sizes.buttonWidthDp.dp)
+            .height(sizes.buttonHeightDp.dp)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = MaterialTheme.colorScheme.error)
+            .clickable {
+                click()
+            }
+            .padding(vertical = (sizes.buttonHeightDp / 8).dp),
+        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onError),
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+fun SolveButton(sizes: Sizes, hasSolution: Boolean, click: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .alpha(if (hasSolution) 1f else .25f)
+            .width(sizes.buttonWidthDp.dp)
+            .height(sizes.buttonHeightDp.dp)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = MaterialTheme.colorScheme.outlineVariant)
+            .clickable(enabled = hasSolution) {
+                click()
+            }
+    ) {
+        if (hasSolution) {
+            Image(
+                painter = painterResource(id = R.drawable.solve),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .padding(vertical = (sizes.buttonHeightDp / 8).dp),
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onError),
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(
+                        (Math.min(
+                            sizes.buttonHeightDp,
+                            sizes.buttonWidthDp
+                        ) - sizes.buttonHeightDp / 4).dp
+                    )
+                    .align(Alignment.Center),
+                color = MaterialTheme.colorScheme.onError,
+                strokeWidth = 5.dp,
+                strokeCap = StrokeCap.Round,
+            )
+        }
+    }
+}
+
+@Composable
+fun UndoButton(sizes: Sizes, undoEnabled: Boolean, click: () -> Unit) {
+    Image(painter = painterResource(id = R.drawable.undo),
+        contentDescription = null,
+        modifier = Modifier
+            .alpha(if (undoEnabled) 1f else .25f)
+            .width(sizes.buttonWidthDp.dp)
+            .height(sizes.buttonHeightDp.dp)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = MaterialTheme.colorScheme.tertiary)
+            .clickable(enabled = undoEnabled) { click() }
+            .padding(vertical = (sizes.buttonHeightDp / 8).dp),
+        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onTertiary),
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+fun Target(sizes: Sizes, won: Won, target: Int) {
+
+    Box(
+        modifier = Modifier
+            .width((2 * sizes.buttonWidthDp).dp)
+            .height((1.8f * sizes.buttonHeightDp).dp)
+            .border(
+                if (won != Won.NOT_WON) 4.dp else 2.dp,
+                when (won) {
+                    Won.WON_EXACT, Won.WON_BEST -> MaterialTheme.colorScheme.tertiaryContainer; else -> MaterialTheme.colorScheme.onSurface
+                },
+                RoundedCornerShape(16.dp)
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                color = when (won) {
+                    Won.WON_EXACT -> MaterialTheme.colorScheme.tertiary; Won.WON_BEST -> MaterialTheme.colorScheme.outline; else -> Color.Transparent
+                }
+            )
+    ) {
+        Text(
+            text = target.toString(),
+            modifier = Modifier
+                .align(Alignment.Center),
+            color = MaterialTheme.colorScheme.onTertiary,
+            fontWeight = FontWeight.Bold,
+            fontSize = TextUnit(2 * sizes.textSizeSp, TextUnitType.Sp),
+        )
+    }
+}
+
 
 @Composable
 fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
 
 data class Sizes(
+    val landscape: Boolean,
     val buttonWidthDp: Float,
     val buttonHeightDp: Float,
     val textSizeSp: Float,
@@ -688,6 +822,16 @@ data class Sizes(
 @Preview
 @Composable
 fun PlateauPreview() {
+    LeCompteEstBonTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+            Plateau()
+        }
+    }
+}
+
+@Preview(device = Devices.TABLET)
+@Composable
+fun PlateauPreviewTablet() {
     LeCompteEstBonTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             Plateau()
