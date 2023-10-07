@@ -2,6 +2,7 @@ package net.finiasz.lecompte
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -78,6 +79,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        onBackPressedDispatcher.addCallback(onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                moveTaskToBack(true)
+            }
+        })
     }
 }
 
@@ -99,7 +106,9 @@ fun Plateau(gameViewModel : GameViewModel = viewModel()) {
     }
 
     LaunchedEffect(Unit) {
-        reset()
+        if (gameViewModel.state.value.target == 0) {
+            reset()
+        }
     }
 
     val sizes : Sizes = with(LocalConfiguration.current) {
